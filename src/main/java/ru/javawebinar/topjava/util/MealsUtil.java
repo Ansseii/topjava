@@ -16,6 +16,7 @@ import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toList;
 
 public class MealsUtil {
+
     public static void main(String[] args) {
         List<Meal> meals = Arrays.asList(
                 new Meal(LocalDateTime.of(2015, Month.MAY, 30, 10, 0), "Завтрак", 500),
