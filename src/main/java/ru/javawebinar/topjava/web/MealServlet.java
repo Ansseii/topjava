@@ -17,16 +17,19 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 public class MealServlet extends HttpServlet {
     private static final Logger log = getLogger(MealServlet.class);
+    private List<MealWithExceed> list;
+
+    @Override
+    public void init() {
+        list = MealsUtil.getFilteredWithExceeded(MemoryStorageUtil.getMeals(), MemoryStorageUtil.getStartTime(),
+                MemoryStorageUtil.getEndTime(), MemoryStorageUtil.getCalories());
+    }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         log.debug("redirect to meals");
 
-        List<MealWithExceed> list = MealsUtil.getFilteredWithExceeded(MemoryStorageUtil.getMeals(), MemoryStorageUtil.getStartTime(),
-                MemoryStorageUtil.getEndTime(), MemoryStorageUtil.getCalories());
         req.setAttribute("meals", list);
-
         req.getRequestDispatcher("/meals.jsp").forward(req, resp);
-//        resp.sendRedirect("meals.jsp");
     }
 }
