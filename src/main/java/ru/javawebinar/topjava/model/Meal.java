@@ -6,15 +6,13 @@ import java.time.LocalTime;
 
 public class Meal {
 
-    public static final Meal EMPTY = new Meal(-1, LocalDateTime.MAX, "", 0);
-
     private int id;
 
-    private  LocalDateTime dateTime;
+    private LocalDateTime dateTime;
 
-    private  String description;
+    private String description;
 
-    private  int calories;
+    private int calories;
 
     public Meal(final int id, final LocalDateTime dateTime, final String description, final int calories) {
         this.id = id;

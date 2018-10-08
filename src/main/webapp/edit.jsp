@@ -16,13 +16,13 @@
         </dl>
         <dl>
             <dt>Time:</dt>
-            <dd><input type="text" name="time" size=50 value="${meal.dateTime}"></dd>
+            <dd><input type="datetime-local" name="time" size=50 value="${meal.dateTime}"></dd>
         </dl>
         <dl>
             <dt>Calories:</dt>
             <dd><input type="text" name="calories" size=50 value="${meal.calories}"></dd>
         </dl>
-        <input type="submit" value="Submit" />
+        <input type="submit" value="Submit"/>
     </form>
 </section>
 </body>
