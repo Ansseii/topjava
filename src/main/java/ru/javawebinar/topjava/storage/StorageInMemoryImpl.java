@@ -3,13 +3,13 @@ package ru.javawebinar.topjava.storage;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.util.MealsUtil;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class StorageInMemoryImpl implements Dao {
+public class StorageInMemoryImpl implements MealDao {
 
     private AtomicInteger counter;
 
@@ -17,21 +17,21 @@ public class StorageInMemoryImpl implements Dao {
 
     public StorageInMemoryImpl() {
         map = new ConcurrentHashMap<>();
-        for (Meal meal : MealsUtil.MEALS) {
-            map.putIfAbsent(meal.getId(), meal);
-        }
+        fillMap(map);
         counter = new AtomicInteger(map.size());
     }
 
     @Override
-    public void create(final Meal meal) {
+    public Meal create(final Meal meal) {
         meal.setId(counter.incrementAndGet());
         map.put(meal.getId(), meal);
+        return meal;
     }
 
     @Override
-    public void update(final Meal meal) {
+    public Meal update(final Meal meal) {
         map.put(meal.getId(), meal);
+        return meal;
     }
 
     @Override
@@ -40,12 +40,18 @@ public class StorageInMemoryImpl implements Dao {
     }
 
     @Override
-    public Meal getMealById(final int id) {
+    public Meal getById(final int id) {
         return map.get(id);
     }
 
     @Override
-    public List<Meal> getAllMeals() {
-        return new CopyOnWriteArrayList<>(map.values());
+    public List<Meal> getAll() {
+        return new ArrayList<>(map.values());
+    }
+
+    private void fillMap(final Map<Integer, Meal> map) {
+        for (Meal meal : MealsUtil.MEALS) {
+            map.putIfAbsent(meal.getId(), meal);
+        }
     }
 }

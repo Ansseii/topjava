@@ -3,7 +3,7 @@ package ru.javawebinar.topjava.web;
 import org.slf4j.Logger;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.model.MealWithExceed;
-import ru.javawebinar.topjava.storage.Dao;
+import ru.javawebinar.topjava.storage.MealDao;
 import ru.javawebinar.topjava.storage.StorageInMemoryImpl;
 import ru.javawebinar.topjava.util.MealsUtil;
 
@@ -23,12 +23,14 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 public class MealServlet extends HttpServlet {
     private static final Logger log = getLogger(MealServlet.class);
-    private Dao dao;
+    private MealDao mealDao;
+    private DateTimeFormatter formatter;
 
     @Override
     public void init() throws ServletException {
         super.init();
-        dao = new StorageInMemoryImpl();
+        mealDao = new StorageInMemoryImpl();
+        formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
     }
 
     @Override
@@ -44,17 +46,17 @@ public class MealServlet extends HttpServlet {
                 req.getRequestDispatcher("edit.jsp").forward(req, resp);
                 break;
             case "update":
-                meal = dao.getMealById(Integer.parseInt(id));
+                meal = mealDao.getById(Integer.parseInt(id));
                 req.setAttribute("meal", meal);
                 req.getRequestDispatcher("edit.jsp").forward(req, resp);
                 break;
             case "delete":
-                dao.delete(Integer.parseInt(id));
+                mealDao.delete(Integer.parseInt(id));
                 resp.sendRedirect("meals");
                 return;
             case "view":
             default:
-                final List<MealWithExceed> list = MealsUtil.getFilteredWithExceeded(dao.getAllMeals(), LocalDateTime.MIN.toLocalTime(),
+                final List<MealWithExceed> list = MealsUtil.getFilteredWithExceeded(mealDao.getAll(), LocalDateTime.MIN.toLocalTime(),
                         LocalDateTime.MAX.toLocalTime(), 2000);
                 req.setAttribute("meals", list);
                 req.getRequestDispatcher("meals.jsp").forward(req, resp);
@@ -69,31 +71,25 @@ public class MealServlet extends HttpServlet {
         final String desc = req.getParameter("description");
         final String dateTime = req.getParameter("time");
         final int calories = Integer.parseInt(req.getParameter("calories"));
-        Meal meal;
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
 
         try {
             LocalDateTime formatDateTime = LocalDateTime.parse(dateTime, formatter);
-            meal = new Meal(Integer.parseInt(id), formatDateTime, desc, calories);
-            if (create(Integer.parseInt(id))) {
-                dao.update(meal);
+            Meal meal = new Meal(Integer.parseInt(id), formatDateTime, desc, calories);
+            if (Integer.parseInt(id) > 0) {
+                mealDao.update(meal);
                 log.debug("updated");
             } else {
-                dao.create(meal);
+                mealDao.create(meal);
                 log.debug("added");
             }
         } catch (DateTimeParseException e) {
             log.debug("DateTime parse exception :" + e);
         }
 
-        final List<MealWithExceed> list = MealsUtil.getFilteredWithExceeded(dao.getAllMeals(), LocalDateTime.MIN.toLocalTime(),
+        final List<MealWithExceed> list = MealsUtil.getFilteredWithExceeded(mealDao.getAll(), LocalDateTime.MIN.toLocalTime(),
                 LocalDateTime.MAX.toLocalTime(), 2000);
         req.setAttribute("meals", list);
         req.getRequestDispatcher("meals.jsp").forward(req, resp);
-    }
-
-    private boolean create(final int id) {
-        return id > 0;
     }
 }
 
