@@ -25,12 +25,9 @@ public class MealRestController {
 
     private final MealService service;
 
-//    private final int userId;
-
     @Autowired
     public MealRestController(MealService service) {
         this.service = service;
-//        userId = SecurityUtil.authUserId();
     }
 
     public Meal create(Meal meal) {
