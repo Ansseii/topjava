@@ -12,7 +12,6 @@ import ru.javawebinar.topjava.util.exception.NotFoundException;
 import ru.javawebinar.topjava.web.SecurityUtil;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -26,37 +25,42 @@ public class MealRestController {
 
     private final MealService service;
 
-    private final int userId;
+//    private final int userId;
 
     @Autowired
     public MealRestController(MealService service) {
         this.service = service;
-        userId = SecurityUtil.authUserId();
+//        userId = SecurityUtil.authUserId();
     }
 
     public Meal create(Meal meal) {
+        int userId = SecurityUtil.authUserId();
         log.info("create {} for user with ID {}", meal, userId);
         checkNew(meal);
         return service.create(meal, userId);
     }
 
     public void delete(int id) throws NotFoundException {
+        int userId = SecurityUtil.authUserId();
         log.info("delete meal {} for user with ID {}", id, userId);
         service.delete(id, userId);
     }
 
     public Meal get(int id) throws NotFoundException {
+        int userId = SecurityUtil.authUserId();
         log.info("get meal {} for user with ID {}", id, userId);
         return service.get(id, userId);
     }
 
     public void update(Meal meal, int id) {
+        int userId = SecurityUtil.authUserId();
         log.info("update {} for user with ID {}", meal, userId);
         assureIdConsistent(meal, id);
         service.update(meal, userId);
     }
 
     public List<MealWithExceed> getAll() {
+        int userId = SecurityUtil.authUserId();
         log.info("getAll for user with ID {}", userId);
         return MealsUtil.getWithExceeded(service.getAll(userId), SecurityUtil.authUserCaloriesPerDay());
     }
@@ -66,6 +70,7 @@ public class MealRestController {
         LocalDate endD = endDate == null ? LocalDate.MAX : endDate;
         LocalTime startT = startTime == null ? LocalTime.MIN : startTime;
         LocalTime endT = endTime == null ? LocalTime.MAX : endTime;
+        int userId = SecurityUtil.authUserId();
 
         return MealsUtil.getFilteredWithExceeded(service.getFiltered(userId, startD, endD),
                 SecurityUtil.authUserCaloriesPerDay(), startT, endT);

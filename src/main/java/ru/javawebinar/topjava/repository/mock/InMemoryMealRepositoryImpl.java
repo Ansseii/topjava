@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -48,7 +49,7 @@ public class InMemoryMealRepositoryImpl implements MealRepository {
     @Override
     public List<Meal> getAll(int userId) {
         Map<Integer, Meal> mealById = repository.get(userId);
-        return mealById == null ? null : mealById.values().stream()
+        return mealById == null ? new CopyOnWriteArrayList<>() : mealById.values().stream()
                 .sorted((o1, o2) -> o2.getDate().compareTo(o1.getDate()))
                 .collect(Collectors.toList());
     }
