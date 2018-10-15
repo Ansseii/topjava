@@ -13,6 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Repository
 public class InMemoryMealRepositoryImpl implements MealRepository {
@@ -48,18 +49,21 @@ public class InMemoryMealRepositoryImpl implements MealRepository {
 
     @Override
     public List<Meal> getAll(int userId) {
-        Map<Integer, Meal> mealById = repository.get(userId);
-        return mealById == null ? new CopyOnWriteArrayList<>() : mealById.values().stream()
+        return getStream(userId)
                 .sorted((o1, o2) -> o2.getDate().compareTo(o1.getDate()))
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<Meal> getFiltered(int userId, LocalDate startDate, LocalDate endDate) {
-        Map<Integer, Meal> mealById = repository.get(userId);
-        return mealById == null ? null : mealById.values().stream()
+        return getStream(userId)
                 .filter(meal -> DateTimeUtil.isBetween(meal.getDate(), startDate, endDate))
                 .collect(Collectors.toList());
+    }
+
+    private Stream<Meal> getStream(int userId) {
+        Map<Integer, Meal> mealById = repository.get(userId);
+        return mealById == null ? Stream.empty() : mealById.values().stream();
     }
 }
 
