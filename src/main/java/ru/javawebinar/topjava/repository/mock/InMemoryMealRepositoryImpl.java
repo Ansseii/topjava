@@ -49,21 +49,24 @@ public class InMemoryMealRepositoryImpl implements MealRepository {
 
     @Override
     public List<Meal> getAll(int userId) {
-        return getStream(userId)
-                .sorted((o1, o2) -> o2.getDate().compareTo(o1.getDate()))
-                .collect(Collectors.toList());
+        return sortedByDateToList(getStream(userId));
     }
 
     @Override
     public List<Meal> getFiltered(int userId, LocalDate startDate, LocalDate endDate) {
-        return getStream(userId)
-                .filter(meal -> DateTimeUtil.isBetween(meal.getDate(), startDate, endDate))
-                .collect(Collectors.toList());
+        return sortedByDateToList(getStream(userId)
+                .filter(meal -> DateTimeUtil.isBetween(meal.getDate(), startDate, endDate)));
     }
 
     private Stream<Meal> getStream(int userId) {
         Map<Integer, Meal> mealById = repository.get(userId);
         return mealById == null ? Stream.empty() : mealById.values().stream();
+    }
+
+    private List<Meal> sortedByDateToList(Stream<Meal> stream) {
+        return stream
+                .sorted((o1, o2) -> o2.getDateTime().compareTo(o1.getDateTime()))
+                .collect(Collectors.toList());
     }
 }
 

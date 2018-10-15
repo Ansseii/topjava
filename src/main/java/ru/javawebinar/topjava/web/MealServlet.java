@@ -52,7 +52,7 @@ public class MealServlet extends HttpServlet {
             response.sendRedirect("meals");
         } else if (action.equals("filter")) {
             LocalDate startDate = DateTimeUtil.parseDate(request.getParameter("startDate"));
-            LocalDate endDate = DateTimeUtil.parseDate(request.getParameter("startDate"));
+            LocalDate endDate = DateTimeUtil.parseDate(request.getParameter("endDate"));
             LocalTime startTime = DateTimeUtil.parseTime(request.getParameter("startTime"));
             LocalTime endTime = DateTimeUtil.parseTime(request.getParameter("endTime"));
             request.setAttribute("meals", mealRestController.getFiltered(startDate, endDate, startTime, endTime));
