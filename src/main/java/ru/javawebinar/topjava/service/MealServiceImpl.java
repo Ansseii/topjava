@@ -8,7 +8,6 @@ import ru.javawebinar.topjava.util.exception.NotFoundException;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Objects;
 
 import static ru.javawebinar.topjava.util.ValidationUtil.checkNotFoundWithId;
 
@@ -44,7 +43,7 @@ public class MealServiceImpl implements MealService {
 
     @Override
     public List<Meal> getAll(int userId) {
-        return repository.getAll(userId, Objects::nonNull);
+        return repository.getAll(userId);
     }
 
     @Override
