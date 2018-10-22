@@ -17,7 +17,7 @@ import java.util.List;
 @Repository
 public class JdbcMealRepositoryImpl implements MealRepository {
 
-    public static final BeanPropertyRowMapper<Meal> ROW_MAPPER = BeanPropertyRowMapper.newInstance(Meal.class);
+    private static final BeanPropertyRowMapper<Meal> ROW_MAPPER = BeanPropertyRowMapper.newInstance(Meal.class);
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -28,7 +28,7 @@ public class JdbcMealRepositoryImpl implements MealRepository {
     @Autowired
     public JdbcMealRepositoryImpl(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
         this.insertMeal = new SimpleJdbcInsert(jdbcTemplate)
-                .withTableName("meal")
+                .withTableName("meals")
                 .usingGeneratedKeyColumns("id");
         this.jdbcTemplate = jdbcTemplate;
         this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
@@ -38,10 +38,10 @@ public class JdbcMealRepositoryImpl implements MealRepository {
     public Meal save(Meal meal, int userId) {
         MapSqlParameterSource map = new MapSqlParameterSource()
                 .addValue("id", meal.getId())
-                .addValue("user_id", userId)
                 .addValue("description", meal.getDescription())
                 .addValue("date_time", meal.getDateTime())
-                .addValue("calories", meal.getCalories());
+                .addValue("calories", meal.getCalories())
+                .addValue("user_id", userId);
 
         if (meal.isNew()) {
             Number newId = insertMeal.executeAndReturnKey(map);
@@ -68,13 +68,15 @@ public class JdbcMealRepositoryImpl implements MealRepository {
 
     @Override
     public List<Meal> getAll(int userId) {
-        return jdbcTemplate.query("SELECT * FROM meals WHERE user_id=? ORDER BY date_time DESC", ROW_MAPPER, userId);
+        return jdbcTemplate.query("SELECT * FROM meals " +
+                        "WHERE user_id=? ORDER BY date_time DESC"
+                , ROW_MAPPER, userId);
     }
 
     @Override
     public List<Meal> getBetween(LocalDateTime startDate, LocalDateTime endDate, int userId) {
         return jdbcTemplate.query("SELECT * FROM meals " +
-                        "WHERE user_id=? BETWEEN ? AND ? " +
+                        "WHERE user_id=? AND date_time BETWEEN ? AND ? " +
                         "ORDER BY date_time DESC ",
                 ROW_MAPPER, userId, startDate, endDate);
     }
