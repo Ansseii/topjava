@@ -67,6 +67,13 @@ public class MealServiceTest {
     }
 
     @Test
+    public void getBetweenDateTimes() {
+        Assertions.assertThat(mealService.getBetweenDateTimes(LocalDateTime.of(2015, Month.MAY, 30, 10, 0),
+                LocalDateTime.of(2015, Month.MAY, 30, 20, 0), USER_ID))
+                .usingFieldByFieldElementComparator().isEqualTo(Arrays.asList(MEAL3, MEAL2, MEAL1));
+    }
+
+    @Test
     public void getAll() {
         Assertions.assertThat(mealService.getAll(USER_ID))
                 .usingFieldByFieldElementComparator().isEqualTo(MEAL_LIST);
