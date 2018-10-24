@@ -1,6 +1,5 @@
 package ru.javawebinar.topjava.service;
 
-import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.bridge.SLF4JBridgeHandler;
@@ -15,7 +14,6 @@ import ru.javawebinar.topjava.util.exception.NotFoundException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
-import java.util.Arrays;
 
 import static ru.javawebinar.topjava.UserTestData.ADMIN_ID;
 import static ru.javawebinar.topjava.UserTestData.USER_ID;
@@ -39,7 +37,7 @@ public class MealServiceTest {
     @Test
     public void get() {
         Meal actual = mealService.get(MEAL_ID + 2, USER_ID);
-        Assertions.assertThat(actual).isEqualToComparingFieldByField(MEAL3);
+        assertMatch(actual, MEAL3);
     }
 
     @Test(expected = NotFoundException.class)
@@ -50,8 +48,7 @@ public class MealServiceTest {
     @Test
     public void delete() {
         mealService.delete(MEAL_ID, USER_ID);
-        Assertions.assertThat(mealService.getAll(USER_ID))
-                .usingFieldByFieldElementComparator().isEqualTo(Arrays.asList(MEAL6, MEAL5, MEAL4, MEAL3, MEAL2));
+        assertMatch(mealService.getAll(USER_ID), MEAL6, MEAL5, MEAL4, MEAL3, MEAL2);
     }
 
     @Test(expected = NotFoundException.class)
@@ -61,29 +58,26 @@ public class MealServiceTest {
 
     @Test
     public void getBetweenDate() {
-        Assertions.assertThat(mealService.getBetweenDates(LocalDate.of(2015, Month.MAY, 30),
-                LocalDate.of(2015, Month.MAY, 30), USER_ID))
-                .usingFieldByFieldElementComparator().isEqualTo(Arrays.asList(MEAL3, MEAL2, MEAL1));
+        assertMatch(mealService.getBetweenDates(LocalDate.of(2015, Month.MAY, 30),
+                LocalDate.of(2015, Month.MAY, 30), USER_ID), MEAL3, MEAL2, MEAL1);
     }
 
     @Test
     public void getBetweenDateTimes() {
-        Assertions.assertThat(mealService.getBetweenDateTimes(LocalDateTime.of(2015, Month.MAY, 30, 10, 0),
-                LocalDateTime.of(2015, Month.MAY, 30, 20, 0), USER_ID))
-                .usingFieldByFieldElementComparator().isEqualTo(Arrays.asList(MEAL3, MEAL2, MEAL1));
+        assertMatch(mealService.getBetweenDateTimes(LocalDateTime.of(2015, Month.MAY, 30, 10, 0),
+                LocalDateTime.of(2015, Month.MAY, 30, 20, 0), USER_ID), MEAL3, MEAL2, MEAL1);
     }
 
     @Test
     public void getAll() {
-        Assertions.assertThat(mealService.getAll(USER_ID))
-                .usingFieldByFieldElementComparator().isEqualTo(MEAL_LIST);
+        assertMatch(mealService.getAll(USER_ID), MEAL_LIST);
     }
 
     @Test
     public void update() {
         Meal meal = new Meal(MEAL_ID, MEAL1.getDateTime(), "Обновленный завтрак", 200);
         mealService.update(meal, USER_ID);
-        Assertions.assertThat(mealService.get(MEAL_ID, USER_ID)).isEqualToComparingFieldByField(meal);
+        assertMatch(mealService.get(MEAL_ID, USER_ID), meal);
     }
 
     @Test(expected = NotFoundException.class)
@@ -97,7 +91,6 @@ public class MealServiceTest {
         Meal meal = new Meal(null, LocalDateTime.of(2018, 12, 25, 15, 30),
                 "Новый обед", 300);
         mealService.create(meal, USER_ID);
-        Assertions.assertThat(mealService.getAll(USER_ID))
-                .usingFieldByFieldElementComparator().isEqualTo(Arrays.asList(meal, MEAL6, MEAL5, MEAL4, MEAL3, MEAL2, MEAL1));
+        assertMatch(mealService.getAll(USER_ID), meal, MEAL6, MEAL5, MEAL4, MEAL3, MEAL2, MEAL1);
     }
 }
