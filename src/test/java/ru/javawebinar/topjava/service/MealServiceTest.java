@@ -46,11 +46,7 @@ public class MealServiceTest {
         @Override
         protected void finished(long nanos, Description description) {
             final StringBuilder result = new StringBuilder()
-                    .append("Method: ")
-                    .append(description.getMethodName())
-                    .append(" Elapsed Time: ")
-                    .append(TimeUnit.NANOSECONDS.toMillis(nanos))
-                    .append("\n");
+            .append(String.format("%15s   %10s ms \t \n", description.getMethodName(), TimeUnit.NANOSECONDS.toMillis(nanos)));
             ALL_METHODS_RESULT.append(result);
             log.info(result.toString());
         }
@@ -58,9 +54,10 @@ public class MealServiceTest {
 
     @AfterClass
     public static void print() {
-        log.info("\n-----------------------\n" +
+        log.info("\n------------------------------------\n" +
+                "      METHOD         ELAPSED TIME \n" +
                 "{}" +
-                "-----------------------\n", ALL_METHODS_RESULT.toString());
+                "------------------------------------\n", ALL_METHODS_RESULT.toString());
     }
 
     static {
@@ -95,8 +92,9 @@ public class MealServiceTest {
         assertMatch(actual, ADMIN_MEAL1);
     }
 
-    @Test(expected = NotFoundException.class)
+    @Test
     public void getNotFound() throws Exception {
+        thrown.expect(NotFoundException.class);
         service.get(MEAL1_ID, ADMIN_ID);
     }
 
@@ -107,8 +105,9 @@ public class MealServiceTest {
         assertMatch(service.get(MEAL1_ID, USER_ID), updated);
     }
 
-    @Test(expected = NotFoundException.class)
+    @Test
     public void updateNotFound() throws Exception {
+        thrown.expect(NotFoundException.class);
         service.update(MEAL1, ADMIN_ID);
     }
 
