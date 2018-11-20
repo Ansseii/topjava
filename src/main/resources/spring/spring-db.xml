@@ -58,10 +58,11 @@
             <constructor-arg ref="dataSource"/>
         </bean>
 
-        <bean id="transactionManager"
+        <bean id="trManager"
               class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
             <property name="dataSource" ref="dataSource" />
         </bean>
+        <tx:annotation-driven transaction-manager="trManager"/>
     </beans>
 
     <beans profile="jpa,datajpa">

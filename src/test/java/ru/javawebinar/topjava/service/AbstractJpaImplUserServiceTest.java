@@ -3,7 +3,6 @@ package ru.javawebinar.topjava.service;
 import org.junit.Before;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.javawebinar.topjava.repository.JpaUtil;
-import ru.javawebinar.topjava.service.AbstractUserServiceTest;
 
 public abstract class AbstractJpaImplUserServiceTest extends AbstractUserServiceTest {
 

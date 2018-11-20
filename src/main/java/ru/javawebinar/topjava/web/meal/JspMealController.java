@@ -1,30 +1,24 @@
-package ru.javawebinar.topjava.web;
+package ru.javawebinar.topjava.web.meal;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import ru.javawebinar.topjava.model.Meal;
-import ru.javawebinar.topjava.service.MealService;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Objects;
 
 import static ru.javawebinar.topjava.util.DateTimeUtil.parseLocalDate;
 import static ru.javawebinar.topjava.util.DateTimeUtil.parseLocalTime;
 
 @Controller
 @RequestMapping("/meals")
-public class JspMealController extends AbstractController {
-
-    @Autowired
-    public JspMealController(MealService service) {
-        super(service);
-    }
+public class JspMealController extends AbstractMealController {
 
     @GetMapping("/create")
     public String create(Model model) {
@@ -67,5 +61,10 @@ public class JspMealController extends AbstractController {
         LocalTime endTime = parseLocalTime(request.getParameter("endTime"));
         model.addAttribute("meals", getBetween(startDate, startTime, endDate, endTime));
         return "/meals";
+    }
+
+    private Integer getId(HttpServletRequest request) {
+        String paramId = Objects.requireNonNull(request.getParameter("id"));
+        return Integer.valueOf(paramId);
     }
 }
