@@ -1,15 +1,22 @@
 const ajaxUrl = "ajax/profile/meals/";
 let datatableApi;
 
+function rewrite(data) {
+    datatableApi.clear().rows.add(data).draw();
+}
+
 function filterMeals() {
     $.ajax({
         type: "POST",
         url: ajaxUrl + "filter",
         data: $("#filter").serialize(),
-        success: function (data) {
-            datatableApi.clear().rows.add(data).draw();
-        }
+        success: rewrite
     });
+}
+
+function clearFilter() {
+    $("#filter")[0].reset();
+    $.get(ajaxUrl, rewrite);
 }
 
 $(function () {
