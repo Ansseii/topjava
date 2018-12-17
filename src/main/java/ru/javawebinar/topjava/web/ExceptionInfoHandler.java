@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
@@ -55,9 +56,9 @@ public class ExceptionInfoHandler {
     }
 
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
-    @ExceptionHandler(BindException.class)
-    public ErrorInfo handleError(HttpServletRequest request, BindException ex) {
-        BindingResult result = ex.getBindingResult();
+    @ExceptionHandler({BindException.class, MethodArgumentNotValidException.class})
+    public ErrorInfo invalidDataError(HttpServletRequest request, Exception ex) {
+        BindingResult result = ex instanceof BindException ? ((BindException) ex).getBindingResult() : ((MethodArgumentNotValidException) ex).getBindingResult();
         return new ErrorInfo(request.getRequestURL(), VALIDATION_ERROR, ValidationUtil.getErrorResponse(result));
     }
 

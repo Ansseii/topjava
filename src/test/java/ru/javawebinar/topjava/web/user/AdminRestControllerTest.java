@@ -4,10 +4,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 import ru.javawebinar.topjava.TestUtil;
+import ru.javawebinar.topjava.UserTestData;
 import ru.javawebinar.topjava.model.Role;
 import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.web.AbstractControllerTest;
-import ru.javawebinar.topjava.web.json.JsonUtil;
 
 import java.util.Collections;
 
@@ -89,7 +89,7 @@ class AdminRestControllerTest extends AbstractControllerTest {
         mockMvc.perform(put(REST_URL + USER_ID)
                 .contentType(MediaType.APPLICATION_JSON)
                 .with(userHttpBasic(ADMIN))
-                .content(JsonUtil.writeValue(updated)))
+                .content(UserTestData.jsonWithPassword(updated, USER.getPassword())))
                 .andExpect(status().isNoContent());
 
         assertMatch(userService.get(USER_ID), updated);
@@ -118,5 +118,26 @@ class AdminRestControllerTest extends AbstractControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(getUserMatcher(ADMIN, USER)));
+    }
+
+    @Test
+    void testCreateWithInvalidData() throws Exception {
+        User invalid = new User(null, "New", "", "newPass", 2300, Role.ROLE_ADMIN);
+        mockMvc.perform(post(REST_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(userHttpBasic(ADMIN))
+                .content(UserTestData.jsonWithPassword(invalid, "newPass")))
+                .andExpect(status().isUnprocessableEntity());
+    }
+
+    @Test
+    void testUpdateWithInvalidData() throws Exception {
+        User invalid = new User(USER);
+        invalid.setEmail("");
+        mockMvc.perform(post(REST_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(userHttpBasic(ADMIN))
+                .content(UserTestData.jsonWithPassword(invalid, "newPass")))
+                .andExpect(status().isUnprocessableEntity());
     }
 }

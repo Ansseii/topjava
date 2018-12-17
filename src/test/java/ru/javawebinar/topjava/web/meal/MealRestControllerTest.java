@@ -10,10 +10,13 @@ import ru.javawebinar.topjava.service.MealService;
 import ru.javawebinar.topjava.web.AbstractControllerTest;
 import ru.javawebinar.topjava.web.json.JsonUtil;
 
+import java.time.LocalDateTime;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static ru.javawebinar.topjava.MealTestData.assertMatch;
 import static ru.javawebinar.topjava.MealTestData.*;
 import static ru.javawebinar.topjava.TestUtil.*;
 import static ru.javawebinar.topjava.UserTestData.*;
@@ -123,5 +126,26 @@ class MealRestControllerTest extends AbstractControllerTest {
                 .with(userHttpBasic(USER)))
                 .andExpect(status().isOk())
                 .andExpect(getToMatcher(getWithExcess(MEALS, USER.getCaloriesPerDay())));
+    }
+
+    @Test
+    void testCreateWithInvalidData() throws Exception {
+        Meal invalid = new Meal(null, LocalDateTime.now(), "name", 2);
+        mockMvc.perform(post(REST_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.writeValue(invalid))
+                .with(userHttpBasic(USER)))
+                .andExpect(status().isUnprocessableEntity());
+    }
+
+    @Test
+    void testUpdateWithInvalidData() throws Exception {
+        Meal invalid = getCreated();
+        invalid.setCalories(2);
+        mockMvc.perform(post(REST_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.writeValue(invalid))
+                .with(userHttpBasic(USER)))
+                .andExpect(status().isUnprocessableEntity());
     }
 }
