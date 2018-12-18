@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
-import ru.javawebinar.topjava.util.MessageUtil;
 import ru.javawebinar.topjava.util.ValidationUtil;
 import ru.javawebinar.topjava.util.exception.ErrorInfo;
 import ru.javawebinar.topjava.util.exception.ErrorType;
@@ -25,6 +24,7 @@ import ru.javawebinar.topjava.util.exception.NotFoundException;
 
 import javax.servlet.http.HttpServletRequest;
 
+import static ru.javawebinar.topjava.util.ValidationUtil.getMessage;
 import static ru.javawebinar.topjava.util.ValidationUtil.getRootCause;
 import static ru.javawebinar.topjava.util.exception.ErrorType.*;
 
@@ -92,6 +92,6 @@ public class ExceptionInfoHandler {
         } else {
             log.warn("{} at request  {}: {}", errorType, req.getRequestURL(), rootCause.toString());
         }
-        return new ErrorInfo(req.getRequestURL(), errorType, details[0]);
+        return new ErrorInfo(req.getRequestURL(), errorType, details.length > 0 ? details[0] : getMessage(rootCause));
     }
 }
