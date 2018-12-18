@@ -3,8 +3,6 @@ package ru.javawebinar.topjava.web;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -18,6 +16,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import ru.javawebinar.topjava.util.MessageUtil;
 import ru.javawebinar.topjava.util.ValidationUtil;
 import ru.javawebinar.topjava.util.exception.ErrorInfo;
 import ru.javawebinar.topjava.util.exception.ErrorType;
@@ -33,14 +32,14 @@ import static ru.javawebinar.topjava.util.exception.ErrorType.*;
 @Order(Ordered.HIGHEST_PRECEDENCE + 5)
 public class ExceptionInfoHandler {
     private static Logger log = LoggerFactory.getLogger(ExceptionInfoHandler.class);
-    private static final String DUPLICATE_EMAIL_ERROR = "common.duplicateEmail";
-    private static final String DUPLICATE_DATE_TIME_ERROR = "common.duplicateMealDate";
+    public static final String DUPLICATE_EMAIL_ERROR = "common.duplicateEmail";
+    public static final String DUPLICATE_DATE_TIME_ERROR = "common.duplicateMealDate";
 
-    private final MessageSource messageSource;
+    private final MessageUtil messageUtil;
 
     @Autowired
-    public ExceptionInfoHandler(MessageSource messageSource) {
-        this.messageSource = messageSource;
+    public ExceptionInfoHandler(MessageUtil messageUtil) {
+        this.messageUtil = messageUtil;
     }
 
     //  http://stackoverflow.com/a/22358422/548473
@@ -54,12 +53,14 @@ public class ExceptionInfoHandler {
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ErrorInfo conflict(HttpServletRequest req, DataIntegrityViolationException e) {
         String message;
-        message = getRootCause(e).getLocalizedMessage();
+        message = getRootCause(e).getMessage();
         if (message.contains("users_unique_email_idx")) {
-            return new ErrorInfo(req.getRequestURL(), DATA_ERROR, messageSource.getMessage(DUPLICATE_EMAIL_ERROR, null, LocaleContextHolder.getLocale()));
+            String detail = messageUtil.getMessage(DUPLICATE_EMAIL_ERROR, message);
+            return logAndGetErrorInfo(req, e, true, ErrorType.DUPLICATE_EMAIL_ERROR, detail);
         }
         if (message.contains("meals_unique_user_datetime_idx")) {
-            return new ErrorInfo(req.getRequestURL(), DATA_ERROR, messageSource.getMessage(DUPLICATE_DATE_TIME_ERROR, null, LocaleContextHolder.getLocale()));
+            String detail = messageUtil.getMessage(DUPLICATE_DATE_TIME_ERROR, message);
+            return logAndGetErrorInfo(req, e, true, ErrorType.DUPLICATE_DATE_TIME_ERROR, detail);
         }
         return logAndGetErrorInfo(req, e, true, DATA_ERROR);
     }
@@ -84,13 +85,13 @@ public class ExceptionInfoHandler {
     }
 
     //    https://stackoverflow.com/questions/538870/should-private-helper-methods-be-static-if-they-can-be-static
-    private static ErrorInfo logAndGetErrorInfo(HttpServletRequest req, Exception e, boolean logException, ErrorType errorType) {
+    private static ErrorInfo logAndGetErrorInfo(HttpServletRequest req, Exception e, boolean logException, ErrorType errorType, String... details) {
         Throwable rootCause = getRootCause(e);
         if (logException) {
             log.error(errorType + " at request " + req.getRequestURL(), rootCause);
         } else {
             log.warn("{} at request  {}: {}", errorType, req.getRequestURL(), rootCause.toString());
         }
-        return new ErrorInfo(req.getRequestURL(), errorType, ValidationUtil.getMessage(rootCause));
+        return new ErrorInfo(req.getRequestURL(), errorType, details[0]);
     }
 }
